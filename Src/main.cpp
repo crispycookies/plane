@@ -21,6 +21,10 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include "json.hpp"
+#include "STM32_PWM.h"
+#include "STM32_Servo.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -77,7 +81,11 @@ GPIO_InitTypeDef gpio_tdef;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  auto pwm = STM32_PWM(TIM1, 16, 5000, {TIM_CHANNEL_1, TIM_CHANNEL_2});
+  auto servo = STM32_Servo(&pwm, TIM_CHANNEL_1, std::make_pair(2000, 3000), 145);
+  pwm.init();
+  servo.enable();
+  servo.set_angle(90);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/

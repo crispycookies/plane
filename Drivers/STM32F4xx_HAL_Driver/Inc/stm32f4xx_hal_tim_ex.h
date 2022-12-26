@@ -245,11 +245,11 @@ HAL_StatusTypeDef HAL_TIMEx_OCN_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Chann
   * @}
   */
 
-/** @addtogroup TIMEx_Exported_Functions_Group3 Extended Timer Complementary PWM functions
-  *  @brief    Timer Complementary PWM functions
+/** @addtogroup TIMEx_Exported_Functions_Group3 Extended Timer Complementary STM32_PWM functions
+  *  @brief    Timer Complementary STM32_PWM functions
   * @{
   */
-/*  Timer Complementary PWM functions  ****************************************/
+/*  Timer Complementary STM32_PWM functions  ****************************************/
 /* Blocking mode: Polling */
 HAL_StatusTypeDef HAL_TIMEx_PWMN_Start(TIM_HandleTypeDef *htim, uint32_t Channel);
 HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop(TIM_HandleTypeDef *htim, uint32_t Channel);
