@@ -81,11 +81,6 @@ GPIO_InitTypeDef gpio_tdef;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  auto pwm = STM32_PWM(TIM1, 16, 5000, {TIM_CHANNEL_1, TIM_CHANNEL_2});
-  auto servo = STM32_Servo(&pwm, TIM_CHANNEL_1, std::make_pair(2000, 3000), 145);
-  pwm.init();
-  servo.enable();
-  servo.set_angle(90);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -112,11 +107,40 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_TIM1_Init();
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-  /* USER CODE BEGIN 2 */
+  // MX_TIM1_Init();
+  //HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+    /**TIM1 GPIO Configuration
+    PE9     ------> TIM1_CH1
+    PE10     ------> TIM1_CH2N
+    PE12     ------> TIM1_CH3N
+    */
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+  /* USER CODE BEGIN 2 */
+    //while (true);
   /* USER CODE END 2 */
+    auto pwm = STM32_PWM(TIM1, 16, 8000, {TIM_CHANNEL_1, TIM_CHANNEL_2});
+    pwm.init();
+    //auto servo = STM32_Servo(&pwm, TIM_CHANNEL_1, std::make_pair(2000, 3000), 145);
+    // pwm.init();
+    //servo.enable();
+     pwm.enable();
+     pwm.enable_channel(TIM_CHANNEL_1);
+     pwm.set_channel_ticks(TIM_CHANNEL_1, 2100);
+    while(1) {
+
+        //servo.set_angle(120);
+    }
+
+
+
 
   /* Init scheduler */
   osKernelInitialize();
@@ -225,7 +249,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 16;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 5000;
+  htim1.Init.Period = 8000;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -241,7 +265,7 @@ static void MX_TIM1_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 2100;
+  sConfigOC.Pulse = 2800;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_LOW;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;

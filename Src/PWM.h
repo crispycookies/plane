@@ -7,6 +7,7 @@
 
 #include <tuple>
 #include <optional>
+#include <cstdint>
 
 class PWM {
 public:
