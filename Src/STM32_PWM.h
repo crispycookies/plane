@@ -32,7 +32,7 @@ public:
 
     std::optional<uint32_t> get_channel_ticks(uint32_t channel) override;
 
-    double tick_length_in_ns() override;
+    double tick_length_in_us() override;
 protected:
     TIM_HandleTypeDef _timer = {0};
     TIM_MasterConfigTypeDef _sMasterConfig = {0};

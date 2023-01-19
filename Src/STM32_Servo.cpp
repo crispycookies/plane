@@ -4,13 +4,16 @@
 
 #include "STM32_Servo.h"
 
+#include <cmath>
+
 bool STM32_Servo::set_angle(double angle) {
-    if(!_pwm || angle < 0. || angle > _max_degrees) {
+    if(!_pwm || std::abs(angle) > (_max_degrees - _degree_offset)) {
         return false;
     }
     _angle = angle;
 
-    const auto scaled_pulse = angle * _factor_per_degree + _lower_offset;
+    const auto offset_accounted = angle + _degree_offset;
+    const auto scaled_pulse = (offset_accounted * _factor_per_degree) + _lower_offset;
 
     return _pwm->set_channel_ticks(_channel, static_cast<uint32_t>(scaled_pulse));
 }
@@ -37,7 +40,7 @@ void STM32_Servo::calculate_constants() {
     if (!_pwm) {
         return;
     }
-    const auto tick_length = _pwm->tick_length_in_ns();
+    const auto tick_length = _pwm->tick_length_in_us();
     const auto lower_bound = _bounds.first;
     const auto upper_bound = _bounds.second;
     const auto range = upper_bound - lower_bound;
@@ -48,4 +51,10 @@ void STM32_Servo::calculate_constants() {
 
     _lower_offset = lower_bound / tick_length;
     _factor_per_degree = range / _max_degrees;
+
+    if (_centered) {
+        _degree_offset = (_max_degrees / 2);
+    } else {
+        _degree_offset = 0.;
+    }
 }

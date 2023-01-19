@@ -14,7 +14,7 @@ public:
     virtual ~PWM() = default;
 
     virtual bool init() = 0;
-    virtual double tick_length_in_ns() = 0;
+    virtual double tick_length_in_us() = 0;
 
     virtual void enable() = 0;
     virtual void disable() = 0;

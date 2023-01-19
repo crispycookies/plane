@@ -14,13 +14,15 @@
 class STM32_Servo : public SERVO {
 public:
     STM32_Servo
-            (PWM *const pwm, uint32_t channel, std::pair<double, double> bounds, double max_degrees) : _pwm(pwm),
+            (PWM *const pwm, uint32_t channel, std::pair<double, double> bounds, double max_degrees, bool centered) : _pwm(pwm),
                                                                                                        _channel(channel),
                                                                                                        _angle(0.),
                                                                                                        _bounds(std::move(bounds)),
                                                                                                        _lower_offset(0.),
                                                                                                        _factor_per_degree(0.),
-                                                                                                       _max_degrees(max_degrees) { calculate_constants(); };
+                                                                                                       _max_degrees(max_degrees),
+                                                                                                       _centered(centered)
+                                                                                                       { calculate_constants(); };
 
     bool disable() override;
 
@@ -38,6 +40,8 @@ protected:
     double _lower_offset;
     double _factor_per_degree;
     double _max_degrees;
+    double _degree_offset;
+    bool _centered;
 private:
     void calculate_constants();
 };

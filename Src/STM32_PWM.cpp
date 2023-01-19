@@ -121,8 +121,8 @@ std::optional<uint32_t> STM32_PWM::get_channel_ticks(uint32_t channel) {
     return __HAL_TIM_GET_COMPARE(&_timer, channel);
 }
 
-double STM32_PWM::tick_length_in_ns() {
-    constexpr double ns = std::chrono::nanoseconds(std::chrono::seconds(1)).count();
+double STM32_PWM::tick_length_in_us() {
+    constexpr double ns = std::chrono::microseconds(std::chrono::seconds(1)).count();
 
     const auto clock = SystemCoreClock;
     const auto prescaler = _timer.Init.Prescaler;
