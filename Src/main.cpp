@@ -22,8 +22,8 @@
 #include "cmsis_os.h"
 
 #include "json.hpp"
-#include "STM32_PWM.h"
-#include "STM32_Servo.h"
+#include "LLServoStuff/STM32_PWM.h"
+#include "LLServoStuff/STM32_Servo.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -66,6 +66,13 @@ static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
 
 void StartDefaultTask(void *argument);
+
+void PinInitialization();
+void TimInitialization();
+
+void GyroTask(void *argument);
+void CommTask(void *argument);
+void RudderControlTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -120,7 +127,7 @@ int main(void) {
     PE12     ------> TIM1_CH3N
     */
     GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_12;
+    GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -129,16 +136,21 @@ int main(void) {
     /* USER CODE BEGIN 2 */
     //while (true);
     /* USER CODE END 2 */
-    auto pwm = STM32_PWM(TIM1, 16, 8000, {TIM_CHANNEL_1, TIM_CHANNEL_2});
+    auto pwm = STM32_PWM(TIM1, 16, 15000, {TIM_CHANNEL_1 | TIM_CHANNEL_2});
     pwm.init();
     // pwm.init();
     //servo.enable();
     pwm.enable();
     pwm.enable_channel(TIM_CHANNEL_1);
+    pwm.enable_channel(TIM_CHANNEL_2);
     //pwm.set_channel_ticks(TIM_CHANNEL_1, 2100);
-    auto servo = STM32_Servo(&pwm, TIM_CHANNEL_1, std::make_pair(2000, 3000), 145, true);
-    servo.enable();
-    servo.set_angle(145./2);
+    auto servo_left = STM32_Servo(&pwm, TIM_CHANNEL_1, std::make_pair(2000, 3000), 145, true);
+    servo_left.enable();
+    servo_left.set_angle(0.0);
+
+    auto servo_right = STM32_Servo(&pwm, TIM_CHANNEL_2, std::make_pair(2000, 3000), 145, true);
+    servo_right.enable();
+    servo_right.set_angle(0.0);
     while (1) {
 
         //servo.set_angle(120);
@@ -328,6 +340,40 @@ void StartDefaultTask(void *argument) {
         osDelay(1000);
     }
     /* USER CODE END 5 */
+}
+
+void GyroTask(void *argument) {
+
+}
+void CommTask(void *argument) {
+
+}
+void RudderControlTask(void *argument) {
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+
+    auto pwm = STM32_PWM(TIM1, 16, 8000, {TIM_CHANNEL_1, TIM_CHANNEL_2});
+    pwm.init();
+    pwm.enable();
+    pwm.enable_channel(TIM_CHANNEL_1);
+    pwm.enable_channel(TIM_CHANNEL_2);
+
+
+    auto right_servo = STM32_Servo(&pwm, TIM_CHANNEL_1, std::make_pair(2000, 3000), 145, true);
+    right_servo.enable();
+
+    auto left_servo = STM32_Servo(&pwm, TIM_CHANNEL_2, std::make_pair(2000, 3000), 145, true);
+    right_servo.enable();
+
+    while(true) {
+
+    }
 }
 
 /**
