@@ -36,7 +36,7 @@ STM32_PWM::STM32_PWM(TIM_TypeDef *timer, uint32_t prescaler, uint32_t period, st
     _sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
 
     for (const auto &i: channels) {
-        _channels[i] = 0;
+        _channels[i] = false;
     }
 }
 
@@ -74,18 +74,20 @@ bool STM32_PWM::is_enabled() {
 }
 
 bool STM32_PWM::enable_channel(uint32_t channel) {
-    if (_channels.find(channel) == _channels.end()) {
+    if (!_channels.count(channel)) {
         return false;
     }
+    _channels[channel] = true;
 
-    HAL_TIM_PWM_Start(&_timer, channel);
-    return true;
+    return HAL_TIM_PWM_Start(&_timer, channel) == HAL_OK;
 }
 
 bool STM32_PWM::disable_channel(uint32_t channel) {
     if (_channels.find(channel) == _channels.end()) {
         return false;
     }
+
+    _channels[channel] = false;
 
     HAL_TIM_PWM_Stop(&_timer, channel);
     return true;
@@ -98,7 +100,7 @@ bool STM32_PWM::is_channel_enabled(uint32_t channel) {
 
 bool STM32_PWM::configure_channels() {
     return std::all_of(_channels.begin(), _channels.end(), [&](const auto &i) {
-        return HAL_TIM_OC_ConfigChannel(&_timer, &_sConfigOC, i.first) != HAL_OK;
+        return HAL_TIM_OC_ConfigChannel(&_timer, &_sConfigOC, i.first) == HAL_OK;
     });
 }
 

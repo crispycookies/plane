@@ -38,7 +38,7 @@ protected:
     TIM_MasterConfigTypeDef _sMasterConfig = {0};
     TIM_OC_InitTypeDef _sConfigOC = {0};
     TIM_BreakDeadTimeConfigTypeDef _sBreakDeadTimeConfig = {0};
-    std::map<uint32_t, uint32_t> _channels;
+    std::map<uint32_t, bool> _channels;
 private:
     bool configure_channels();
 };

@@ -119,7 +119,6 @@ int main(void) {
     MX_GPIO_Init();
     // MX_TIM1_Init();
     //HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-
     __HAL_RCC_GPIOE_CLK_ENABLE();
     /**TIM1 GPIO Configuration
     PE9     ------> TIM1_CH1
@@ -136,25 +135,18 @@ int main(void) {
     /* USER CODE BEGIN 2 */
     //while (true);
     /* USER CODE END 2 */
-    auto pwm = STM32_PWM(TIM1, 16, 15000, {TIM_CHANNEL_1 | TIM_CHANNEL_2});
+    auto pwm = STM32_PWM(TIM1, 16, 15000, {TIM_CHANNEL_1, TIM_CHANNEL_2});
     pwm.init();
-    // pwm.init();
-    //servo.enable();
     pwm.enable();
-    pwm.enable_channel(TIM_CHANNEL_1);
-    pwm.enable_channel(TIM_CHANNEL_2);
-    //pwm.set_channel_ticks(TIM_CHANNEL_1, 2100);
+
     auto servo_left = STM32_Servo(&pwm, TIM_CHANNEL_1, std::make_pair(2000, 3000), 145, true);
     servo_left.enable();
-    servo_left.set_angle(0.0);
+    servo_left.set_angle(-60.);
 
     auto servo_right = STM32_Servo(&pwm, TIM_CHANNEL_2, std::make_pair(2000, 3000), 145, true);
     servo_right.enable();
     servo_right.set_angle(0.0);
-    while (1) {
-
-        //servo.set_angle(120);
-    }
+    while (1) {}
 
 
 
