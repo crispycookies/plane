@@ -67,7 +67,17 @@ static void MX_TIM1_Init(void);
 
 void StartDefaultTask(void *argument);
 
-void PinInitialization();
+void ServoPinInitialization() {
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+}
 void TimInitialization();
 
 void GyroTask(void *argument);
@@ -89,53 +99,13 @@ void RudderControlTask(void *argument);
   */
 GPIO_InitTypeDef gpio_tdef;
 
-int main(void) {
-    /* USER CODE BEGIN 1 */
-    /* USER CODE END 1 */
-
-    /* MCU Configuration--------------------------------------------------------*/
-
-    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+int main() {
     HAL_Init();
-
-    /* USER CODE BEGIN Init */
-    __HAL_RCC_GPIOG_CLK_ENABLE();
-
-    gpio_tdef.Mode = GPIO_MODE_OUTPUT_PP;
-    gpio_tdef.Pin = GPIO_PIN_13;
-    gpio_tdef.Pull = GPIO_PULLDOWN;
-    gpio_tdef.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(GPIOG, &gpio_tdef);
-    /* USER CODE END Init */
-
-    /* Configure the system clock */
     SystemClock_Config();
 
-    /* USER CODE BEGIN SysInit */
+    ServoPinInitialization();
 
-    /* USER CODE END SysInit */
-
-    /* Initialize all configured peripherals */
-    MX_GPIO_Init();
-    // MX_TIM1_Init();
-    //HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-    __HAL_RCC_GPIOE_CLK_ENABLE();
-    /**TIM1 GPIO Configuration
-    PE9     ------> TIM1_CH1
-    PE10     ------> TIM1_CH2N
-    PE12     ------> TIM1_CH3N
-    */
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-    /* USER CODE BEGIN 2 */
-    //while (true);
-    /* USER CODE END 2 */
-    auto pwm = STM32_PWM(TIM1, 16, 15000, {TIM_CHANNEL_1, TIM_CHANNEL_2});
+    auto pwm = STM32_PWM(TIM1, 16, 20000, {TIM_CHANNEL_1, TIM_CHANNEL_2});
     pwm.init();
     pwm.enable();
 
@@ -146,7 +116,7 @@ int main(void) {
     auto servo_right = STM32_Servo(&pwm, TIM_CHANNEL_2, std::make_pair(2000, 3000), 145, true);
     servo_right.enable();
     servo_right.set_angle(0.0);
-    while (1) {}
+    while (true) {}
 
 
 
