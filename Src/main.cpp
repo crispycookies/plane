@@ -109,13 +109,13 @@ int main() {
     pwm.init();
     pwm.enable();
 
-    auto servo_left = STM32_Servo(&pwm, TIM_CHANNEL_1, std::make_pair(2000, 3000), 145, true);
+    auto servo_left = STM32_Servo(&pwm, TIM_CHANNEL_1, std::make_pair(1000, 2000), 145, true);
     servo_left.enable();
-    servo_left.set_angle(-60.);
+    servo_left.set_angle(-0.);
 
-    auto servo_right = STM32_Servo(&pwm, TIM_CHANNEL_2, std::make_pair(2000, 3000), 145, true);
+    auto servo_right = STM32_Servo(&pwm, TIM_CHANNEL_2, std::make_pair(1000, 2000), 145, true);
     servo_right.enable();
-    servo_right.set_angle(0.0);
+    servo_right.set_angle(60.0);
     while (true) {}
 
 
