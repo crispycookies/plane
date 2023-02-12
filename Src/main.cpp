@@ -98,10 +98,70 @@ void RudderControlTask(void *argument);
   * @retval int
   */
 GPIO_InitTypeDef gpio_tdef;
+UART_HandleTypeDef huart5;
+
+void UARTInitialization() {
+    __HAL_RCC_UART5_CLK_ENABLE();
+    huart5.Instance = UART5;
+    huart5.Init.BaudRate = 115200;
+    huart5.Init.WordLength = UART_WORDLENGTH_8B;
+    huart5.Init.StopBits = UART_STOPBITS_1;
+    huart5.Init.Parity = UART_PARITY_NONE;
+    huart5.Init.Mode = UART_MODE_TX_RX;
+    huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    huart5.Init.OverSampling = UART_OVERSAMPLING_16;
+    if (HAL_UART_Init(&huart5) != HAL_OK) {
+        Error_Handler();
+    }
+}
+
+void UARTPinInitialization() {
+    /* USER CODE BEGIN UART5_MspInit 0 */
+
+    /* USER CODE END UART5_MspInit 0 */
+    /* Peripheral clock enable */
+
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    /**UART5 GPIO Configuration
+    PC12     ------> UART5_TX
+    PD2     ------> UART5_RX
+    */
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF8_UART5;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_2;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF8_UART5;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+}
+
+void InitUART() {
+    UARTPinInitialization();
+    UARTInitialization();
+}
 
 int main() {
     HAL_Init();
     SystemClock_Config();
+    InitUART();
+
+
+    while(true) {
+        uint8_t buffer[20];
+        memset(buffer, 0, 20);
+        HAL_UART_Receive (&huart5, buffer, sizeof(buffer), 999);
+
+        volatile auto d = buffer[19];
+    }
+
 
     ServoPinInitialization();
 
