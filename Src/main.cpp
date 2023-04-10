@@ -24,6 +24,9 @@
 #include "json.hpp"
 #include "LLServoStuff/STM32_PWM.h"
 #include "LLServoStuff/STM32_Servo.h"
+#include "JSON_Trim_Passthrough.h"
+#include "Mapper_Conrad.h"
+#include "JSON_API_Lohmann.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -153,13 +156,25 @@ int main() {
     SystemClock_Config();
     InitUART();
 
+    auto trim = JSON_Trim_Passthrough();
+    auto mapper = Mapper_Conrad(90.);
+    auto json = JSON_API_Lohmann();
 
     while(true) {
-        uint8_t buffer[20];
-        memset(buffer, 0, 20);
-        HAL_UART_Receive (&huart5, buffer, sizeof(buffer), 999);
+        uint8_t buffer[50];
+        memset(buffer, 0, 50);
+        if (HAL_UART_Receive (&huart5, buffer, sizeof(buffer), 999) == HAL_OK) {
+            std::string raw_data = reinterpret_cast<char*>(buffer);
 
-        volatile auto d = buffer[19];
+            trim.load(raw_data);
+            auto trimmed = trim.get();
+            json.parse(trimmed);
+
+            volatile auto pitch = mapper.get_pitch(json.get_pitch());
+            volatile auto roll = mapper.get_pitch(json.get_roll());
+            volatile auto yaw = mapper.get_pitch(json.get_yaw());
+            volatile auto thrust = mapper.get_pitch(json.get_thrust());
+        }
     }
 
 
